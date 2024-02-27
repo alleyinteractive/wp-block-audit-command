@@ -1,0 +1,14 @@
+includes:
+  - vendor/szepeviktor/phpstan-wordpress/extension.neon
+
+parameters:
+	# Level 9 is the highest level
+	level: max
+
+	scanDirectories:
+		- vendor/wp-cli/php-cli-tools/lib/
+		- vendor/wp-cli/wp-cli/php/
+
+	paths:
+		- src/
+		- command.php
