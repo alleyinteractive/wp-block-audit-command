@@ -238,6 +238,8 @@ final class Block_Audit_Command extends WP_CLI\CommandWithDBObject implements Fe
 	 * @return array Updated details.
 	 */
 	private function with_details( array $details, array $block ): array {
+		static $has_filter = [];
+
 		$html  = new \WP_HTML_Tag_Processor( $block['innerHTML'] );
 		$attrs = $block['attrs'];
 
@@ -247,7 +249,13 @@ final class Block_Audit_Command extends WP_CLI\CommandWithDBObject implements Fe
 			$details['align'][ $attrs['align'] ]++;
 		}
 
-		switch ( $block['blockName'] ) {
+		$block_name = $block['blockName'];
+
+		if ( ! $block_name ) {
+			$block_name = 'core/classic';
+		}
+
+		switch ( $block_name ) {
 			case 'core/embed':
 				if ( ! empty( $attrs['providerNameSlug'] ) ) {
 					$details['providerNameSlug'][ $attrs['providerNameSlug'] ] ??= 0;
@@ -268,6 +276,42 @@ final class Block_Audit_Command extends WP_CLI\CommandWithDBObject implements Fe
 
 			default:
 				break;
+		}
+
+		$should_filter =
+			( $has_filter['all'] ??= has_filter( 'alley_block_audit_block_type_details' ) )
+			|| ( $has_filter[ $block_name ] ??= has_filter( "alley_block_audit_{$block_name}_block_type_details" ) );
+
+		if ( $should_filter ) {
+			/**
+			 * Filters the details about a block.
+			 *
+			 * @param array  $details    Details about blocks of this type so far.
+			 * @param string $block_name Name of the block being audited.
+			 * @param array  $attrs      Block attributes.
+			 * @param string $innerHTML  Inner HTML of the block.
+			 * @param array  $block      Block being audited.
+			 * @return array Updated block type details.
+			 */
+			$details = apply_filters( "alley_block_audit_block_type_details", $details, $block_name, $attrs, $block['innerHTML'], $block );
+
+			/**
+			 * Filters the details about a block.
+			 *
+			 * The dynamic portion of the hook name, `$block_name`, refers to the name of the block being audited.
+			 *
+			 * @param array  $details    Details about blocks of this type so far.
+			 * @param string $block_name Name of the block being audited.
+			 * @param array  $attrs      Block attributes.
+			 * @param string $innerHTML  Inner HTML of the block.
+			 * @param array  $block      Block being audited.
+			 * @return array Updated block type details.
+			 */
+			$details = apply_filters( "alley_block_audit_{$block_name}_block_type_details", $details, $block_name, $attrs, $block['innerHTML'], $block );
+		}
+
+		if ( ! is_array( $details ) ) {
+			$details = [];
 		}
 
 		return $details;

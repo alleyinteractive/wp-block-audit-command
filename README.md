@@ -18,6 +18,38 @@ The report includes the number of times each block is used, the post types it's 
 - For 'core/heading' blocks, the count of each heading level used.
 - For 'core/embed' blocks, the count of each embed provider used.
 
+You can add more details to the report with the `alley_block_audit_block_type_details` and `alley_block_audit_{$block_name}_block_type_details` filters:
+
+```php
+add_filter(
+	'alley_block_audit_block_type_details',
+	function ( $details, $block_name, $attrs, $inner_html, $block ) {
+		if ( isset( $attrs['fontSize'] ) && is_string( $attrs['fontSize'] ) ) {
+			$details['fontSize'][ $attrs['fontSize'] ] ??= 0;
+			$details['fontSize'][ $attrs['fontSize'] ]++;
+		}
+
+		return $details;
+	},
+	10,
+	5,
+);
+
+add_filter(
+	'alley_block_audit_core/image_block_type_details',
+	function ( $details, $block_name, $attrs, $inner_html, $block ) {
+		if ( isset( $attrs['aspectRatio'] ) && is_string( $attrs['aspectRatio'] ) ) {
+			$details['aspectRatio'][ $attrs['aspectRatio'] ] ??= 0;
+			$details['aspectRatio'][ $attrs['aspectRatio'] ]++;
+		}
+
+		return $details;
+	},
+	10,
+	5,
+);
+```
+
 ~~~
 wp block-audit run  [--<field>=<value>] [--format=<format>] [--verbose] [--rewind]
 ~~~
