@@ -18,6 +18,7 @@ if ( file_exists( __DIR__ . '/vendor/wordpress-autoload.php' ) ) {
 	require_once __DIR__ . '/vendor/wordpress-autoload.php';
 }
 
+// Load the feature lazily so that the CommandWithDBObject class is available.
 (
 	new WP_CLI_Feature(
 		new Lazy_Feature(
