@@ -293,7 +293,7 @@ final class Block_Audit_Command extends WP_CLI\CommandWithDBObject implements Fe
 			 * @param array  $block      Block being audited.
 			 * @return array Updated block type details.
 			 */
-			$details = apply_filters( "alley_block_audit_block_type_details", $details, $block_name, $attrs, $block['innerHTML'], $block );
+			$details = apply_filters( 'alley_block_audit_block_type_details', $details, $block_name, $attrs, $block['innerHTML'], $block );
 
 			/**
 			 * Filters the details about a block.
