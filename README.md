@@ -12,7 +12,7 @@ This package implements the following commands:
 
 Report how many of each type of block there is in post content and aggregated details about them.
 
-The report includes the number of times each block is used, the post types it's used in, and details comprising:
+The report includes the number of times each block is used, the number of posts the block appears in, the post types it's used in, and details comprising:
 
 - For all blocks, the count of 'align' attribute values.
 - For 'core/heading' blocks, the count of each heading level used.
@@ -22,42 +22,52 @@ You can add more details to the report with the `alley_block_audit_block_type_de
 
 ```php
 add_filter(
-	'alley_block_audit_block_type_details',
-	function ( $details, $block_name, $attrs, $inner_html, $block ) {
-		if ( isset( $attrs['fontSize'] ) && is_string( $attrs['fontSize'] ) ) {
-			$details['fontSize'][ $attrs['fontSize'] ] ??= 0;
-			$details['fontSize'][ $attrs['fontSize'] ]++;
-		}
+    'alley_block_audit_block_type_details',
+    function ( $details, $block_name, $attrs, $inner_html, $block ) {
+        if ( isset( $attrs['fontSize'] ) && is_string( $attrs['fontSize'] ) ) {
+            $details['fontSize'][ $attrs['fontSize'] ] ??= 0;
+            $details['fontSize'][ $attrs['fontSize'] ]++;
+        }
 
-		return $details;
-	},
-	10,
-	5,
+        return $details;
+    },
+    10,
+    5,
 );
 
 add_filter(
-	'alley_block_audit_core/image_block_type_details',
-	function ( $details, $block_name, $attrs, $inner_html, $block ) {
-		if ( isset( $attrs['aspectRatio'] ) && is_string( $attrs['aspectRatio'] ) ) {
-			$details['aspectRatio'][ $attrs['aspectRatio'] ] ??= 0;
-			$details['aspectRatio'][ $attrs['aspectRatio'] ]++;
-		}
+    'alley_block_audit_core/image_block_type_details',
+    function ( $details, $block_name, $attrs, $inner_html, $block ) {
+        if ( isset( $attrs['aspectRatio'] ) && is_string( $attrs['aspectRatio'] ) ) {
+            $details['aspectRatio'][ $attrs['aspectRatio'] ] ??= 0;
+            $details['aspectRatio'][ $attrs['aspectRatio'] ]++;
+        }
 
-		return $details;
-	},
-	10,
-	5,
+        return $details;
+    },
+    10,
+    5,
 );
 ```
 
 ~~~
-wp block-audit run  [--<field>=<value>] [--format=<format>] [--verbose] [--rewind]
+wp block-audit run  [--<field>=<value>] [--format=<format>] [--orderby=<column>] [--verbose] [--rewind]
 ~~~
 
 **OPTIONS**
 
     [--<field>=<value>]
         One or more args to pass to WP_Query except for 'order', 'orderby', or 'paged'.
+
+    [--orderby=<column>]
+        Set the order of the results.
+        ---
+        default: name
+        options:
+          - name
+          - count
+          - post_count
+        ---
 
     [--format=<format>]
         Render output in a particular format.
@@ -80,30 +90,30 @@ wp block-audit run  [--<field>=<value>] [--format=<format>] [--verbose] [--rewin
 **EXAMPLES**
 
     $ wp block-audit run --post_type=post,page
-    +-----------------------------------+-------+------------------------------------------------------------+-----------------+----------------------------------------------------------------------+
-    | Block Name                        | Count | Example URL                                                | Post Types      | Details                                                              |
-    +-----------------------------------+-------+------------------------------------------------------------+-----------------+----------------------------------------------------------------------+
-    | core/archives                     | 3     | https://www.example.com/2023/01/13/widgets-block-category/ | ["post"]        |                                                                      |
-    | core/button                       | 12    | https://www.example.com/2023/01/13/design-category-blocks/ | ["post"]        | {"align":{"left":2,"center":1,"right":1}}                            |
-    | core/code                         | 2     | https://www.example.com/2023/01/13/text-category-blocks/   | ["post"]        |                                                                      |
-    | core/column                       | 40    | https://www.example.com/2023/01/13/design-category-blocks/ | ["post"]        |                                                                      |
-    | core/columns                      | 13    | https://www.example.com/2023/01/13/design-category-blocks/ | ["post"]        | {"align":{"wide":2,"full":1}}                                        |
-    | core/cover                        | 21    | https://www.example.com/2023/01/13/media-category-blocks/  | ["post"]        | {"align":{"left":1,"center":2,"full":1,"wide":2}}                    |
-    | core/file                         | 3     | https://www.example.com/2023/01/13/media-category-blocks/  | ["post"]        |                                                                      |
-    | core/gallery                      | 10    | https://www.example.com/2023/01/13/media-category-blocks/  | ["post"]        |                                                                      |
-    | core/group                        | 25    | https://www.example.com/2023/01/13/design-category-blocks/ | ["post"]        |                                                                      |
-    | core/heading                      | 23    | https://www.example.com/2023/01/13/text-category-blocks/   | ["post","page"] | {"H1":2,"H2":11,"H3":4,"H4":2,"H5":2,"H6":2}                         |
-    | core/html                         | 2     | https://www.example.com/2023/01/13/widgets-block-category/ | ["post"]        |                                                                      |
-    | core/image                        | 19    | https://www.example.com/2023/01/13/media-category-blocks/  | ["post"]        | {"align":{"center":2,"left":2,"right":3,"none":1,"wide":1,"full":1}} |
-    | core/list                         | 9     | https://www.example.com/2023/01/13/text-category-blocks/   | ["post"]        |                                                                      |
-    | core/list-item                    | 6     | https://www.example.com/2023/01/13/text-category-blocks/   | ["post"]        |                                                                      |
-    | core/media-text                   | 6     | https://www.example.com/2023/01/13/media-category-blocks/  | ["post"]        | {"align":{"full":1}}                                                 |
-    | core/paragraph                    | 262   | https://www.example.com/2023/01/13/text-category-blocks/   | ["post","page"] | {"align":{"center":16,"right":1,"left":1}}                           |
-    | core/pullquote                    | 4     | https://www.example.com/2023/01/13/text-category-blocks/   | ["post"]        |                                                                      |
-    | core/spacer                       | 4     | https://www.example.com/2023/01/13/design-category-blocks/ | ["post"]        |                                                                      |
-    | core/table                        | 4     | https://www.example.com/2023/01/13/text-category-blocks/   | ["post"]        |                                                                      |
-    +-----------------------------------+-------+---------------------------------------------------------------+-----------------+----------------------------------------------------------------------+
-
+    +-----------------------------------+-------+---------------------------------------------------------------+------------+-----------------+-----------------------------------------------------------------------------------------------------+
+    | Block Name                        | Count | Example URL                                                   | Post Count | Post Types      | Details                                                                                             |
+    +-----------------------------------+-------+---------------------------------------------------------------+------------+-----------------+-----------------------------------------------------------------------------------------------------+
+    | core/archives                     | 3     | https://dev.alley.test/src/2023/01/13/widgets-block-category/ | 2          | ["post"]        |                                                                                                     |
+    | core/button                       | 12    | https://dev.alley.test/src/2023/01/13/design-category-blocks/ | 3          | ["post"]        | {"align":{"left":2,"center":1,"right":1}}                                                           |
+    | core/buttons                      | 1     | https://dev.alley.test/src/2023/01/13/design-category-blocks/ | 1          | ["post"]        |                                                                                                     |
+    | core/code                         | 2     | https://dev.alley.test/src/2023/01/13/text-category-blocks/   | 2          | ["post"]        |                                                                                                     |
+    | core/column                       | 42    | https://dev.alley.test/src/2023/01/13/design-category-blocks/ | 5          | ["post"]        |                                                                                                     |
+    | core/columns                      | 14    | https://dev.alley.test/src/2023/01/13/design-category-blocks/ | 5          | ["post"]        | {"align":{"wide":2,"full":1}}                                                                       |
+    | core/cover                        | 21    | https://dev.alley.test/src/2023/01/13/media-category-blocks/  | 3          | ["post"]        | {"align":{"left":1,"center":2,"full":1,"wide":2}}                                                   |
+    | core/file                         | 3     | https://dev.alley.test/src/2023/01/13/media-category-blocks/  | 2          | ["post"]        |                                                                                                     |
+    | core/gallery                      | 10    | https://dev.alley.test/src/2023/01/13/media-category-blocks/  | 3          | ["post"]        |                                                                                                     |
+    | core/group                        | 25    | https://dev.alley.test/src/2023/01/13/design-category-blocks/ | 4          | ["post"]        |                                                                                                     |
+    | core/heading                      | 23    | https://dev.alley.test/src/2023/01/13/text-category-blocks/   | 5          | ["post","page"] | {"H1":2,"H2":11,"H3":4,"H4":2,"H5":2,"H6":2,"fontSize":{"small":1,"medium":1,"large":2}}            |
+    | core/html                         | 2     | https://dev.alley.test/src/2023/01/13/widgets-block-category/ | 2          | ["post"]        |                                                                                                     |
+    | core/image                        | 20    | https://dev.alley.test/src/2023/01/13/media-category-blocks/  | 5          | ["post"]        | {"align":{"center":2,"left":2,"right":3,"none":1,"wide":1,"full":1},"aspectRatio":{"4\/3":1}}       |
+    | core/list                         | 9     | https://dev.alley.test/src/2023/01/13/text-category-blocks/   | 4          | ["post"]        |                                                                                                     |
+    | core/list-item                    | 6     | https://dev.alley.test/src/2023/01/13/text-category-blocks/   | 1          | ["post"]        |                                                                                                     |
+    | core/media-text                   | 6     | https://dev.alley.test/src/2023/01/13/media-category-blocks/  | 3          | ["post"]        | {"align":{"full":1}}                                                                                |
+    | core/paragraph                    | 263   | https://dev.alley.test/src/2023/01/13/text-category-blocks/   | 21         | ["post","page"] | {"align":{"center":16,"right":1,"left":1},"fontSize":{"large":20,"small":2,"medium":2,"x-large":1}} |
+    | core/pullquote                    | 4     | https://dev.alley.test/src/2023/01/13/text-category-blocks/   | 3          | ["post"]        |                                                                                                     |
+    | core/separator                    | 15    | https://dev.alley.test/src/2023/01/13/design-category-blocks/ | 2          | ["post"]        | {"align":{"wide":3,"full":3,"center":3}}                                                            |
+    | core/table                        | 4     | https://dev.alley.test/src/2023/01/13/text-category-blocks/   | 2          | ["post"]        |                                                                                                     |
+    +-----------------------------------+-------+---------------------------------------------------------------+------------+-----------------+-----------------------------------------------------------------------------------------------------+
 
 ## Installing
 
