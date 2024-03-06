@@ -49,6 +49,7 @@ final class Block_Audit_Command extends WP_CLI\CommandWithDBObject implements Fe
 	 * options:
 	 *   - name
 	 *   - count
+	 *   - post_count
 	 * ---
 	 *
 	 * [--format=<format>]
@@ -72,29 +73,30 @@ final class Block_Audit_Command extends WP_CLI\CommandWithDBObject implements Fe
 	 * ## EXAMPLES
 	 *
 	 * $ wp block-audit run --post_type=post,page
-	 * +-----------------------------------+-------+------------------------------------------------------------+-----------------+----------------------------------------------------------------------+
-	 * | Block Name                        | Count | Example URL                                                | Post Types      | Details                                                              |
-	 * +-----------------------------------+-------+------------------------------------------------------------+-----------------+----------------------------------------------------------------------+
-	 * | core/archives                     | 3     | https://www.example.com/2023/01/13/widgets-block-category/ | ["post"]        |                                                                      |
-	 * | core/button                       | 12    | https://www.example.com/2023/01/13/design-category-blocks/ | ["post"]        | {"align":{"left":2,"center":1,"right":1}}                            |
-	 * | core/code                         | 2     | https://www.example.com/2023/01/13/text-category-blocks/   | ["post"]        |                                                                      |
-	 * | core/column                       | 40    | https://www.example.com/2023/01/13/design-category-blocks/ | ["post"]        |                                                                      |
-	 * | core/columns                      | 13    | https://www.example.com/2023/01/13/design-category-blocks/ | ["post"]        | {"align":{"wide":2,"full":1}}                                        |
-	 * | core/cover                        | 21    | https://www.example.com/2023/01/13/media-category-blocks/  | ["post"]        | {"align":{"left":1,"center":2,"full":1,"wide":2}}                    |
-	 * | core/file                         | 3     | https://www.example.com/2023/01/13/media-category-blocks/  | ["post"]        |                                                                      |
-	 * | core/gallery                      | 10    | https://www.example.com/2023/01/13/media-category-blocks/  | ["post"]        |                                                                      |
-	 * | core/group                        | 25    | https://www.example.com/2023/01/13/design-category-blocks/ | ["post"]        |                                                                      |
-	 * | core/heading                      | 23    | https://www.example.com/2023/01/13/text-category-blocks/   | ["post","page"] | {"H1":2,"H2":11,"H3":4,"H4":2,"H5":2,"H6":2}                         |
-	 * | core/html                         | 2     | https://www.example.com/2023/01/13/widgets-block-category/ | ["post"]        |                                                                      |
-	 * | core/image                        | 19    | https://www.example.com/2023/01/13/media-category-blocks/  | ["post"]        | {"align":{"center":2,"left":2,"right":3,"none":1,"wide":1,"full":1}} |
-	 * | core/list                         | 9     | https://www.example.com/2023/01/13/text-category-blocks/   | ["post"]        |                                                                      |
-	 * | core/list-item                    | 6     | https://www.example.com/2023/01/13/text-category-blocks/   | ["post"]        |                                                                      |
-	 * | core/media-text                   | 6     | https://www.example.com/2023/01/13/media-category-blocks/  | ["post"]        | {"align":{"full":1}}                                                 |
-	 * | core/paragraph                    | 262   | https://www.example.com/2023/01/13/text-category-blocks/   | ["post","page"] | {"align":{"center":16,"right":1,"left":1}}                           |
-	 * | core/pullquote                    | 4     | https://www.example.com/2023/01/13/text-category-blocks/   | ["post"]        |                                                                      |
-	 * | core/spacer                       | 4     | https://www.example.com/2023/01/13/design-category-blocks/ | ["post"]        |                                                                      |
-	 * | core/table                        | 4     | https://www.example.com/2023/01/13/text-category-blocks/   | ["post"]        |                                                                      |
-	 * +-----------------------------------+-------+---------------------------------------------------------------+-----------------+----------------------------------------------------------------------+
+	 * +-----------------------------------+-------+---------------------------------------------------------------+------------+-----------------+-----------------------------------------------------------------------------------------------------+
+	 * | Block Name                        | Count | Example URL                                                   | Post Count | Post Types      | Details                                                                                             |
+	 * +-----------------------------------+-------+---------------------------------------------------------------+------------+-----------------+-----------------------------------------------------------------------------------------------------+
+	 * | core/archives                     | 3     | https://dev.alley.test/src/2023/01/13/widgets-block-category/ | 2          | ["post"]        |                                                                                                     |
+	 * | core/button                       | 12    | https://dev.alley.test/src/2023/01/13/design-category-blocks/ | 3          | ["post"]        | {"align":{"left":2,"center":1,"right":1}}                                                           |
+	 * | core/buttons                      | 1     | https://dev.alley.test/src/2023/01/13/design-category-blocks/ | 1          | ["post"]        |                                                                                                     |
+	 * | core/code                         | 2     | https://dev.alley.test/src/2023/01/13/text-category-blocks/   | 2          | ["post"]        |                                                                                                     |
+	 * | core/column                       | 42    | https://dev.alley.test/src/2023/01/13/design-category-blocks/ | 5          | ["post"]        |                                                                                                     |
+	 * | core/columns                      | 14    | https://dev.alley.test/src/2023/01/13/design-category-blocks/ | 5          | ["post"]        | {"align":{"wide":2,"full":1}}                                                                       |
+	 * | core/cover                        | 21    | https://dev.alley.test/src/2023/01/13/media-category-blocks/  | 3          | ["post"]        | {"align":{"left":1,"center":2,"full":1,"wide":2}}                                                   |
+	 * | core/file                         | 3     | https://dev.alley.test/src/2023/01/13/media-category-blocks/  | 2          | ["post"]        |                                                                                                     |
+	 * | core/gallery                      | 10    | https://dev.alley.test/src/2023/01/13/media-category-blocks/  | 3          | ["post"]        |                                                                                                     |
+	 * | core/group                        | 25    | https://dev.alley.test/src/2023/01/13/design-category-blocks/ | 4          | ["post"]        |                                                                                                     |
+	 * | core/heading                      | 23    | https://dev.alley.test/src/2023/01/13/text-category-blocks/   | 5          | ["post","page"] | {"H1":2,"H2":11,"H3":4,"H4":2,"H5":2,"H6":2,"fontSize":{"small":1,"medium":1,"large":2}}            |
+	 * | core/html                         | 2     | https://dev.alley.test/src/2023/01/13/widgets-block-category/ | 2          | ["post"]        |                                                                                                     |
+	 * | core/image                        | 20    | https://dev.alley.test/src/2023/01/13/media-category-blocks/  | 5          | ["post"]        | {"align":{"center":2,"left":2,"right":3,"none":1,"wide":1,"full":1},"aspectRatio":{"4\/3":1}}       |
+	 * | core/list                         | 9     | https://dev.alley.test/src/2023/01/13/text-category-blocks/   | 4          | ["post"]        |                                                                                                     |
+	 * | core/list-item                    | 6     | https://dev.alley.test/src/2023/01/13/text-category-blocks/   | 1          | ["post"]        |                                                                                                     |
+	 * | core/media-text                   | 6     | https://dev.alley.test/src/2023/01/13/media-category-blocks/  | 3          | ["post"]        | {"align":{"full":1}}                                                                                |
+	 * | core/paragraph                    | 263   | https://dev.alley.test/src/2023/01/13/text-category-blocks/   | 21         | ["post","page"] | {"align":{"center":16,"right":1,"left":1},"fontSize":{"large":20,"small":2,"medium":2,"x-large":1}} |
+	 * | core/pullquote                    | 4     | https://dev.alley.test/src/2023/01/13/text-category-blocks/   | 3          | ["post"]        |                                                                                                     |
+	 * | core/separator                    | 15    | https://dev.alley.test/src/2023/01/13/design-category-blocks/ | 2          | ["post"]        | {"align":{"wide":3,"full":3,"center":3}}                                                            |
+	 * | core/table                        | 4     | https://dev.alley.test/src/2023/01/13/text-category-blocks/   | 2          | ["post"]        |                                                                                                     |
+	 * +-----------------------------------+-------+---------------------------------------------------------------+------------+-----------------+-----------------------------------------------------------------------------------------------------+
 	 *
 	 * @phpstan-param array<string> $args
 	 * @phpstan-param array<string, string> $assoc_args
@@ -156,6 +158,8 @@ final class Block_Audit_Command extends WP_CLI\CommandWithDBObject implements Fe
 					return;
 				}
 
+				$block_names_in_post = [];
+
 				foreach ( $blocks as $block ) {
 					$block_name = $block['blockName'];
 
@@ -183,12 +187,14 @@ final class Block_Audit_Command extends WP_CLI\CommandWithDBObject implements Fe
 							'Block Name'  => $block_name,
 							'Count'       => 0,
 							'Example URL' => $example_url,
+							'Post Count'  => 0,
 							'Post Types'  => [],
 							'Details'     => [],
 						];
 					}
 
 					$out[ $block_name ]['Count']++;
+					$block_names_in_post[] = $block_name;
 
 					if ( ! in_array( $post->post_type, $out[ $block_name ]['Post Types'], true ) ) {
 						$out[ $block_name ]['Post Types'][] = $post->post_type;
@@ -198,6 +204,10 @@ final class Block_Audit_Command extends WP_CLI\CommandWithDBObject implements Fe
 						$out[ $block_name ]['Details'], // @phpstan-ignore-line
 						$block, // @phpstan-ignore-line
 					);
+				}
+
+				foreach ( array_unique( $block_names_in_post ) as $block_name ) {
+					$out[ $block_name ]['Post Count']++;
 				}
 			},
 		);
@@ -213,6 +223,13 @@ final class Block_Audit_Command extends WP_CLI\CommandWithDBObject implements Fe
 				uasort(
 					$out,
 					fn ( $a, $b ) => $b['Count'] <=> $a['Count'],
+				);
+				break;
+
+			case 'post_count':
+				uasort(
+					$out,
+					fn ( $a, $b ) => $b['Post Count'] <=> $a['Post Count'],
 				);
 				break;
 
