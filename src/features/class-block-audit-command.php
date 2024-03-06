@@ -42,6 +42,15 @@ final class Block_Audit_Command extends WP_CLI\CommandWithDBObject implements Fe
 	 *  [--<field>=<value>]
 	 * : One or more args to pass to WP_Query except for 'order', 'orderby', or 'paged'.
 	 *
+	 * [--orderby=<column>]
+	 * : Set the order of the results.
+	 * ---
+	 * default: name
+	 * options:
+	 *   - name
+	 *   - count
+	 * ---
+	 *
 	 * [--format=<format>]
 	 * : Render output in a particular format.
 	 * ---
@@ -198,8 +207,20 @@ final class Block_Audit_Command extends WP_CLI\CommandWithDBObject implements Fe
 			return;
 		}
 
-		// Sort by block name.
-		ksort( $out );
+		// Order results.
+		switch ( get_flag_value( $assoc_args, 'orderby', 'name' ) ) {
+			case 'count':
+				uasort(
+					$out,
+					fn ( $a, $b ) => $b['Count'] <=> $a['Count'],
+				);
+				break;
+
+			default:
+				ksort( $out );
+				break;
+		}
+
 		$first = reset( $out );
 
 		foreach ( $out as &$values ) {

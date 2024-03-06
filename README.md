@@ -59,6 +59,15 @@ wp block-audit run  [--<field>=<value>] [--format=<format>] [--verbose] [--rewin
     [--<field>=<value>]
         One or more args to pass to WP_Query except for 'order', 'orderby', or 'paged'.
 
+    [--orderby=<column>]
+        Set the order of the results.
+        ---
+        default: name
+        options:
+          - name
+          - count
+        ---
+
     [--format=<format>]
         Render output in a particular format.
         ---
