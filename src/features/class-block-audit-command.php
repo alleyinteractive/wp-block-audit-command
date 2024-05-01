@@ -12,6 +12,7 @@ use Alley\WP_Bulk_Task\Bulk_Task;
 use Alley\WP_Bulk_Task\Progress\Null_Progress_Bar;
 use Alley\WP_Bulk_Task\Progress\PHP_CLI_Progress_Bar;
 use WP_CLI;
+use WP_Post;
 
 use function Alley\WP\match_blocks;
 use function WP_CLI\Utils\format_items;
@@ -167,8 +168,9 @@ final class Block_Audit_Command extends WP_CLI\CommandWithDBObject implements Fe
 						 * Filters the example URL included for a block type.
 						 *
 						 * @param string $example_url The example URL. Defaults to the permalink of the post where the block type was first seen.
+						 * @param WP_Post $post       The post used to generate the example URL.
 						 */
-						$example_url = apply_filters( 'alley_block_audit_block_type_example_url', get_permalink( $post ) );
+						$example_url = apply_filters( 'alley_block_audit_block_type_example_url', get_permalink( $post ), $post );
 
 						$out[ $block_name ] = [
 							'Block Name'  => $block_name,
