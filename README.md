@@ -23,7 +23,7 @@ You can add more details to the report with the `alley_block_audit_block_type_de
 ```php
 add_filter(
 	'alley_block_audit_block_type_details',
-	function ( $details, $block_name, $attrs, $inner_html, $block ) {
+	function ( $details, $block_name, $attrs, $inner_html, $block, $post ) {
 		if ( isset( $attrs['fontSize'] ) && is_string( $attrs['fontSize'] ) ) {
 			$details['fontSize'][ $attrs['fontSize'] ] ??= 0;
 			$details['fontSize'][ $attrs['fontSize'] ]++;
@@ -32,12 +32,12 @@ add_filter(
 		return $details;
 	},
 	10,
-	5,
+	6,
 );
 
 add_filter(
 	'alley_block_audit_core/image_block_type_details',
-	function ( $details, $block_name, $attrs, $inner_html, $block ) {
+	function ( $details, $block_name, $attrs, $inner_html, $block, $post ) {
 		if ( isset( $attrs['aspectRatio'] ) && is_string( $attrs['aspectRatio'] ) ) {
 			$details['aspectRatio'][ $attrs['aspectRatio'] ] ??= 0;
 			$details['aspectRatio'][ $attrs['aspectRatio'] ]++;
@@ -46,7 +46,7 @@ add_filter(
 		return $details;
 	},
 	10,
-	5,
+	6,
 );
 ```
 

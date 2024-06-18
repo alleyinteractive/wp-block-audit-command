@@ -190,6 +190,7 @@ final class Block_Audit_Command extends WP_CLI\CommandWithDBObject implements Fe
 					$out[ $block_name ]['Details'] = $this->with_details(
 						$out[ $block_name ]['Details'], // @phpstan-ignore-line
 						$block, // @phpstan-ignore-line
+						$post,
 					);
 				}
 			},
@@ -235,11 +236,12 @@ final class Block_Audit_Command extends WP_CLI\CommandWithDBObject implements Fe
 	 * @phpstan-param array{blockName: string, attrs: array<string, mixed>, innerHTML: string} $block
 	 * @phpstan-return array<string, mixed>
 	 *
-	 * @param array $details Accumulated details about blocks of this type so far.
-	 * @param array $block   Block being audited.
+	 * @param array   $details Accumulated details about blocks of this type so far.
+	 * @param array   $block   Block being audited.
+	 * @param WP_Post $post    Post where the block was found.
 	 * @return array Updated details.
 	 */
-	private function with_details( array $details, array $block ): array {
+	private function with_details( array $details, array $block, WP_Post $post ): array {
 		static $has_filter = [];
 
 		$html  = new \WP_HTML_Tag_Processor( $block['innerHTML'] );
@@ -288,28 +290,30 @@ final class Block_Audit_Command extends WP_CLI\CommandWithDBObject implements Fe
 			/**
 			 * Filters the details about a block.
 			 *
-			 * @param array  $details    Details about blocks of this type so far.
-			 * @param string $block_name Name of the block being audited.
-			 * @param array  $attrs      Block attributes.
-			 * @param string $innerHTML  Inner HTML of the block.
-			 * @param array  $block      Block being audited.
+			 * @param array   $details    Details about blocks of this type so far.
+			 * @param string  $block_name Name of the block being audited.
+			 * @param array   $attrs      Block attributes.
+			 * @param string  $innerHTML  Inner HTML of the block.
+			 * @param array   $block      Block being audited.
+			 * @param WP_Post $post       The post where the block was found.
 			 * @return array Updated block type details.
 			 */
-			$details = apply_filters( 'alley_block_audit_block_type_details', $details, $block_name, $attrs, $block['innerHTML'], $block );
+			$details = apply_filters( 'alley_block_audit_block_type_details', $details, $block_name, $attrs, $block['innerHTML'], $block, $post );
 
 			/**
 			 * Filters the details about a block.
 			 *
 			 * The dynamic portion of the hook name, `$block_name`, refers to the name of the block being audited.
 			 *
-			 * @param array  $details    Details about blocks of this type so far.
-			 * @param string $block_name Name of the block being audited.
-			 * @param array  $attrs      Block attributes.
-			 * @param string $innerHTML  Inner HTML of the block.
-			 * @param array  $block      Block being audited.
+			 * @param array   $details    Details about blocks of this type so far.
+			 * @param string  $block_name Name of the block being audited.
+			 * @param array   $attrs      Block attributes.
+			 * @param string  $innerHTML  Inner HTML of the block.
+			 * @param array   $block      Block being audited.
+			 * @param WP_Post $post       The post where the block was found.
 			 * @return array Updated block type details.
 			 */
-			$details = apply_filters( "alley_block_audit_{$block_name}_block_type_details", $details, $block_name, $attrs, $block['innerHTML'], $block );
+			$details = apply_filters( "alley_block_audit_{$block_name}_block_type_details", $details, $block_name, $attrs, $block['innerHTML'], $block, $post );
 		}
 
 		if ( ! is_array( $details ) ) {
