@@ -13,7 +13,7 @@
   "require": {
     "php": "^8.2",
     "alleyinteractive/composer-wordpress-autoloader": "^1.0",
-    "alleyinteractive/wp-bulk-task": "^0.2",
+    "alleyinteractive/wp-bulk-task": "^1.0",
     "alleyinteractive/wp-match-blocks": "^3.0",
     "alleyinteractive/wp-type-extensions": "^2.1"
   },
