@@ -6,6 +6,10 @@ This library adheres to [Semantic Versioning](https://semver.org/) and [Keep a C
 
 Nothing yet.
 
+## 2.0.1
+
+- Updated the minimum version of `wp-bulk-task` to ^1.0.
+
 ## 2.0.0
 
 ### Changed
