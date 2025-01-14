@@ -15,7 +15,7 @@
     "alleyinteractive/composer-wordpress-autoloader": "^1.0",
     "alleyinteractive/wp-bulk-task": "^1.0",
     "alleyinteractive/wp-match-blocks": "^3.0",
-    "alleyinteractive/wp-type-extensions": "^2.1"
+    "alleyinteractive/wp-type-extensions": "^3.0"
   },
   "require-dev": {
     "alleyinteractive/alley-coding-standards": "^2.0",
@@ -66,8 +66,7 @@
     "phpstan": "phpstan -v --memory-limit=512M",
     "test": [
       "@phpcs",
-      "@phpstan",
-      "@phpunit"
+      "@phpstan"
     ],
     "tidy": "[ $COMPOSER_DEV_MODE -eq 0 ] || composer normalize"
   }

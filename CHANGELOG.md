@@ -6,6 +6,14 @@ This library adheres to [Semantic Versioning](https://semver.org/) and [Keep a C
 
 Nothing yet.
 
+## 2.0.2
+
+### Changed
+
+- Updated package `alleyinteractive/wp-type-extensions` to ^3.0.
+- Removed non-existent `@phpunit` script from `composer.json`.
+- CI: Added PHP 8.4 to the test matrix.
+
 ## 2.0.1
 
 - Updated the minimum version of `wp-bulk-task` to ^1.0.
