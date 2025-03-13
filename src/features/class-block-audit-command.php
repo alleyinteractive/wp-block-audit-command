@@ -26,7 +26,7 @@ final class Block_Audit_Command extends WP_CLI\CommandWithDBObject implements Fe
 	 * Boot the feature.
 	 */
 	public function boot(): void {
-		WP_CLI::add_command( 'block-audit', $this );
+		WP_CLI::add_command( 'block-audit run', [ $this, 'run' ] );
 	}
 
 	/**
