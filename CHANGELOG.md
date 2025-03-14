@@ -6,6 +6,12 @@ This library adheres to [Semantic Versioning](https://semver.org/) and [Keep a C
 
 Nothing yet.
 
+## 2.0.3
+
+### Fixed
+
+- Removed nonexistent `boot` command from the list of available commands.
+
 ## 2.0.2
 
 ### Changed
