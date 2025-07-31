@@ -2,9 +2,11 @@
 
 This library adheres to [Semantic Versioning](https://semver.org/) and [Keep a CHANGELOG](https://keepachangelog.com/en/1.0.0/).
 
-## Unreleased
+## 2.0.4
 
-Nothing yet.
+### Changed
+
+- Updated package `alleyinteractive/wp-type-extensions` to ^4.0.
 
 ## 2.0.3
 
