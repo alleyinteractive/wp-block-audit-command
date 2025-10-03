@@ -9,6 +9,7 @@ namespace Alley\WP\Features;
 
 use Alley\WP\Types\Feature;
 use Alley\WP_Bulk_Task\Bulk_Task;
+use Alley\WP_Bulk_Task\Cursor\Memory_Cursor;
 use Alley\WP_Bulk_Task\Progress\Null_Progress_Bar;
 use Alley\WP_Bulk_Task\Progress\PHP_CLI_Progress_Bar;
 use WP_CLI;
@@ -58,9 +59,6 @@ final class Block_Audit_Command extends WP_CLI\CommandWithDBObject implements Fe
 	 * [--verbose]
 	 * : Turn on verbose mode.
 	 *
-	 * [--rewind]
-	 * : Resets the cursor so the next time the command is run it will start from the beginning.
-	 *
 	 * ## EXAMPLES
 	 *
 	 * $ wp block-audit run --post_type=post,page
@@ -97,22 +95,16 @@ final class Block_Audit_Command extends WP_CLI\CommandWithDBObject implements Fe
 	public function run( array $args, array $assoc_args = [] ): void {
 		global $wpdb;
 
-		$out = [];
-
-		$user_query_args = array_diff_key( $assoc_args, array_flip( [ 'format', 'verbose', 'rewind' ] ) );
+		$user_query_args = array_diff_key( $assoc_args, array_flip( [ 'format', 'verbose' ] ) );
+		$task_name       = get_flag_value( $assoc_args, 'verbose', false )
+			? new PHP_CLI_Progress_Bar( 'Bulk Task: audit-blocks' )
+			: new Null_Progress_Bar();
 
 		$bulk_task = new Bulk_Task(
 			'audit-blocks-' . md5( (string) wp_json_encode( $user_query_args ) ),
-			get_flag_value( $assoc_args, 'verbose', false )
-				? new PHP_CLI_Progress_Bar( 'Bulk Task: audit-blocks' )
-				: new Null_Progress_Bar(),
+			$task_name,
+			new Memory_Cursor()
 		);
-
-		if ( get_flag_value( $assoc_args, 'rewind', false ) ) {
-			$bulk_task->cursor->reset();
-			\WP_CLI::log( 'Rewound the cursor. Run again without the --rewind flag to process posts.' );
-			return;
-		}
 
 		add_filter( 'ep_skip_query_integration', '__return_true' );
 
@@ -132,6 +124,8 @@ final class Block_Audit_Command extends WP_CLI\CommandWithDBObject implements Fe
 		if ( isset( $query_args['post_type'] ) && is_string( $query_args['post_type'] ) && 'any' !== $query_args['post_type'] ) {
 			$query_args['post_type'] = explode( ',', $query_args['post_type'] );
 		}
+
+		$out = [];
 
 		$bulk_task->run(
 			$query_args,
@@ -197,7 +191,7 @@ final class Block_Audit_Command extends WP_CLI\CommandWithDBObject implements Fe
 		);
 
 		if ( count( $out ) === 0 ) {
-			\WP_CLI::warning( 'No results. Run again with the --rewind flag to reset the cursor.' );
+			\WP_CLI::warning( 'No results found.' );
 			return;
 		}
 
