@@ -101,10 +101,11 @@ final class Block_Audit_Command extends WP_CLI\CommandWithDBObject implements Fe
 	 *   | core/table                        | 4     | https://www.example.com/2023/01/13/text-category-blocks/   | ["post"]        |                                                                      |
 	 *   +-----------------------------------+-------+------------------------------------------------------------+-----------------+----------------------------------------------------------------------+
 	 *
-	 * @param array<mixed> $args       Positional arguments.
-	 * @param array<mixed> $assoc_args Associative arguments.
+	 * @phpstan-param array<string> $args
+	 * @phpstan-param array<string, string> $assoc_args
 	 *
-	 * @throws \Exception If invalid method callback passed to bulk_task.
+	 * @param array $args       Positional arguments.
+	 * @param array $assoc_args Associative arguments.
 	 */
 	public function run( array $args, array $assoc_args = [] ): void {
 		global $wpdb;
