@@ -51,7 +51,7 @@ add_filter(
 ```
 
 ~~~
-wp block-audit run  [--<field>=<value>] [--format=<format>] [--verbose] [--rewind]
+wp block-audit run  [--<field>=<value>] [--format=<format>] [--progress-bar]
 ~~~
 
 **OPTIONS**
@@ -71,8 +71,8 @@ wp block-audit run  [--<field>=<value>] [--format=<format>] [--verbose] [--rewin
         - yaml
         ---
 
-    [--verbose]
-        Turn on verbose mode.
+    [--progress-bar]
+        Show the progress bar.
 
     [--rewind]
         Resets the cursor so the next time the command is run it will start from the beginning.

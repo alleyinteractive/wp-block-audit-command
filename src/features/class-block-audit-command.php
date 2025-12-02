@@ -9,6 +9,7 @@ namespace Alley\WP\Features;
 
 use Alley\WP\Types\Feature;
 use Alley\WP_Bulk_Task\Bulk_Task;
+use Alley\WP_Bulk_Task\Cursor\Memory_Cursor;
 use Alley\WP_Bulk_Task\Progress\Null_Progress_Bar;
 use Alley\WP_Bulk_Task\Progress\PHP_CLI_Progress_Bar;
 use WP_CLI;
@@ -58,11 +59,8 @@ final class Block_Audit_Command extends WP_CLI\CommandWithDBObject implements Fe
 	 *   - yaml
 	 * ---
 	 *
-	 * [--verbose]
-	 * : Turn on verbose mode.
-	 *
-	 * [--rewind]
-	 * : Resets the cursor so the next time the command is run it will start from the beginning.
+	 * [--progress-bar]
+	 * : Show the progress bar.
 	 *
 	 * ## EXAMPLES
 	 *
@@ -101,31 +99,22 @@ final class Block_Audit_Command extends WP_CLI\CommandWithDBObject implements Fe
 	 *   | core/table                        | 4     | https://www.example.com/2023/01/13/text-category-blocks/   | ["post"]        |                                                                      |
 	 *   +-----------------------------------+-------+------------------------------------------------------------+-----------------+----------------------------------------------------------------------+
 	 *
-	 * @phpstan-param array<string> $args
-	 * @phpstan-param array<string, string> $assoc_args
-	 *
-	 * @param array $args       Positional arguments.
-	 * @param array $assoc_args Associative arguments.
+	 * @param array<string> $args       Positional arguments.
+	 * @param array<string> $assoc_args Associative arguments.
 	 */
 	public function run( array $args, array $assoc_args = [] ): void {
 		global $wpdb;
 
-		$out = [];
-
-		$user_query_args = array_diff_key( $assoc_args, array_flip( [ 'format', 'verbose', 'rewind' ] ) );
+		$user_query_args = array_diff_key( $assoc_args, array_flip( [ 'format', 'progress-bar', 'block_name', 'verbose' ] ) );
+		$task_name       = get_flag_value( $assoc_args, 'verbose', false )
+			? new PHP_CLI_Progress_Bar( 'Bulk Task: audit-blocks' )
+			: new Null_Progress_Bar();
 
 		$bulk_task = new Bulk_Task(
 			'audit-blocks-' . md5( (string) wp_json_encode( $user_query_args ) ),
-			get_flag_value( $assoc_args, 'verbose', false )
-				? new PHP_CLI_Progress_Bar( 'Bulk Task: audit-blocks' )
-				: new Null_Progress_Bar(),
+			$task_name,
+			new Memory_Cursor()
 		);
-
-		if ( get_flag_value( $assoc_args, 'rewind', false ) ) {
-			$bulk_task->cursor->reset();
-			\WP_CLI::log( 'Rewound the cursor. Run again without the --rewind flag to process posts.' );
-			return;
-		}
 
 		add_filter( 'ep_skip_query_integration', '__return_true' );
 
@@ -147,20 +136,23 @@ final class Block_Audit_Command extends WP_CLI\CommandWithDBObject implements Fe
 			$query_args['post_type'] = explode( ',', $query_args['post_type'] );
 		}
 
-		$block_names = \Mantle\Support\Helpers\mixed( get_flag_value( $assoc_args, 'block_name', '' ) )
-			->stringable()
-			->explode( ',' )
-			->filter()
-			->all();
+		$block_names = get_flag_value( $assoc_args, 'block_name', '' );
+
+		if ( is_string( $block_names ) ) {
+			$block_names = explode( ',', $block_names );
+			$block_names = array_map( 'trim', $block_names );
+		}
 
 		$block_query_args = [
 			'flatten'           => true,
 			'skip_empty_blocks' => false, // For counting classic blocks.
 		];
 
-		if ( ! empty( $block_names ) ) {
+		if ( ! empty( $block_names ) && is_array( $block_names ) ) {
 			$block_query_args['name'] = $block_names;
 		}
+
+		$out = [];
 
 		$bulk_task->run(
 			$query_args,
@@ -220,7 +212,7 @@ final class Block_Audit_Command extends WP_CLI\CommandWithDBObject implements Fe
 		);
 
 		if ( count( $out ) === 0 ) {
-			\WP_CLI::warning( 'No results. Run again with the --rewind flag to reset the cursor.' );
+			\WP_CLI::warning( 'No results found.' );
 			return;
 		}
 
