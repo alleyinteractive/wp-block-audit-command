@@ -56,8 +56,8 @@ final class Block_Audit_Command extends WP_CLI\CommandWithDBObject implements Fe
 	 *   - yaml
 	 * ---
 	 *
-	 * [--verbose]
-	 * : Turn on verbose mode.
+	 * [--progress-bar]
+	 * : Show the progress bar.
 	 *
 	 * ## EXAMPLES
 	 *
@@ -95,7 +95,7 @@ final class Block_Audit_Command extends WP_CLI\CommandWithDBObject implements Fe
 	public function run( array $args, array $assoc_args = [] ): void {
 		global $wpdb;
 
-		$user_query_args = array_diff_key( $assoc_args, array_flip( [ 'format', 'verbose' ] ) );
+		$user_query_args = array_diff_key( $assoc_args, array_flip( [ 'format', 'progress-bar', 'verbose' ] ) );
 		$task_name       = get_flag_value( $assoc_args, 'verbose', false )
 			? new PHP_CLI_Progress_Bar( 'Bulk Task: audit-blocks' )
 			: new Null_Progress_Bar();
