@@ -41,8 +41,11 @@ final class Block_Audit_Command extends WP_CLI\CommandWithDBObject implements Fe
 	 *
 	 * ## OPTIONS
 	 *
-	 *  [--<field>=<value>]
+	 * [--<field>=<value>]
 	 * : One or more args to pass to WP_Query except for 'order', 'orderby', or 'paged'.
+	 *
+	 * [--block_name=<block_name>...]
+	 * : One or more block names to report on (comma separated). (Default: all block types).
 	 *
 	 * [--format=<format>]
 	 * : Render output in a particular format.
@@ -61,41 +64,48 @@ final class Block_Audit_Command extends WP_CLI\CommandWithDBObject implements Fe
 	 *
 	 * ## EXAMPLES
 	 *
-	 * $ wp block-audit run --post_type=post,page
-	 * +-----------------------------------+-------+------------------------------------------------------------+-----------------+----------------------------------------------------------------------+
-	 * | Block Name                        | Count | Example URL                                                | Post Types      | Details                                                              |
-	 * +-----------------------------------+-------+------------------------------------------------------------+-----------------+----------------------------------------------------------------------+
-	 * | core/archives                     | 3     | https://www.example.com/2023/01/13/widgets-block-category/ | ["post"]        |                                                                      |
-	 * | core/button                       | 12    | https://www.example.com/2023/01/13/design-category-blocks/ | ["post"]        | {"align":{"left":2,"center":1,"right":1}}                            |
-	 * | core/code                         | 2     | https://www.example.com/2023/01/13/text-category-blocks/   | ["post"]        |                                                                      |
-	 * | core/column                       | 40    | https://www.example.com/2023/01/13/design-category-blocks/ | ["post"]        |                                                                      |
-	 * | core/columns                      | 13    | https://www.example.com/2023/01/13/design-category-blocks/ | ["post"]        | {"align":{"wide":2,"full":1}}                                        |
-	 * | core/cover                        | 21    | https://www.example.com/2023/01/13/media-category-blocks/  | ["post"]        | {"align":{"left":1,"center":2,"full":1,"wide":2}}                    |
-	 * | core/file                         | 3     | https://www.example.com/2023/01/13/media-category-blocks/  | ["post"]        |                                                                      |
-	 * | core/gallery                      | 10    | https://www.example.com/2023/01/13/media-category-blocks/  | ["post"]        |                                                                      |
-	 * | core/group                        | 25    | https://www.example.com/2023/01/13/design-category-blocks/ | ["post"]        |                                                                      |
-	 * | core/heading                      | 23    | https://www.example.com/2023/01/13/text-category-blocks/   | ["post","page"] | {"H1":2,"H2":11,"H3":4,"H4":2,"H5":2,"H6":2}                         |
-	 * | core/html                         | 2     | https://www.example.com/2023/01/13/widgets-block-category/ | ["post"]        |                                                                      |
-	 * | core/image                        | 19    | https://www.example.com/2023/01/13/media-category-blocks/  | ["post"]        | {"align":{"center":2,"left":2,"right":3,"none":1,"wide":1,"full":1}} |
-	 * | core/list                         | 9     | https://www.example.com/2023/01/13/text-category-blocks/   | ["post"]        |                                                                      |
-	 * | core/list-item                    | 6     | https://www.example.com/2023/01/13/text-category-blocks/   | ["post"]        |                                                                      |
-	 * | core/media-text                   | 6     | https://www.example.com/2023/01/13/media-category-blocks/  | ["post"]        | {"align":{"full":1}}                                                 |
-	 * | core/paragraph                    | 262   | https://www.example.com/2023/01/13/text-category-blocks/   | ["post","page"] | {"align":{"center":16,"right":1,"left":1}}                           |
-	 * | core/pullquote                    | 4     | https://www.example.com/2023/01/13/text-category-blocks/   | ["post"]        |                                                                      |
-	 * | core/spacer                       | 4     | https://www.example.com/2023/01/13/design-category-blocks/ | ["post"]        |                                                                      |
-	 * | core/table                        | 4     | https://www.example.com/2023/01/13/text-category-blocks/   | ["post"]        |                                                                      |
-	 * +-----------------------------------+-------+---------------------------------------------------------------+-----------------+----------------------------------------------------------------------+
+	 *   # Audit specific blocks in posts and pages.
+	 *   $ wp block-audit run --post_type=post,page --block_name=core/paragraph,core/table
+	 *   +-----------------------------------+-------+------------------------------------------------------------+-----------------+----------------------------------------------------------------------+
+	 *   | Block Name                        | Count | Example URL                                                | Post Types      | Details                                                              |
+	 *   +-----------------------------------+-------+------------------------------------------------------------+-----------------+----------------------------------------------------------------------+
+	 *   | core/paragraph                    | 262   | https://www.example.com/2023/01/13/text-category-blocks/   | ["post","page"] | {"align":{"center":16,"right":1,"left":1}}                           |
+	 *   | core/table                        | 4     | https://www.example.com/2023/01/13/text-category-blocks/   | ["post"]        |                                                                      |
+	 *   +-----------------------------------+-------+------------------------------------------------------------+-----------------+----------------------------------------------------------------------+
 	 *
-	 * @phpstan-param array<string> $args
-	 * @phpstan-param array<string, string> $assoc_args
+	 *   # Audit all blocks in posts and pages.
+	 *   $ wp block-audit run --post_type=post,page
+	 *   +-----------------------------------+-------+------------------------------------------------------------+-----------------+----------------------------------------------------------------------+
+	 *   | Block Name                        | Count | Example URL                                                | Post Types      | Details                                                              |
+	 *   +-----------------------------------+-------+------------------------------------------------------------+-----------------+----------------------------------------------------------------------+
+	 *   | core/archives                     | 3     | https://www.example.com/2023/01/13/widgets-block-category/ | ["post"]        |                                                                      |
+	 *   | core/button                       | 12    | https://www.example.com/2023/01/13/design-category-blocks/ | ["post"]        | {"align":{"left":2,"center":1,"right":1}}                            |
+	 *   | core/code                         | 2     | https://www.example.com/2023/01/13/text-category-blocks/   | ["post"]        |                                                                      |
+	 *   | core/column                       | 40    | https://www.example.com/2023/01/13/design-category-blocks/ | ["post"]        |                                                                      |
+	 *   | core/columns                      | 13    | https://www.example.com/2023/01/13/design-category-blocks/ | ["post"]        | {"align":{"wide":2,"full":1}}                                        |
+	 *   | core/cover                        | 21    | https://www.example.com/2023/01/13/media-category-blocks/  | ["post"]        | {"align":{"left":1,"center":2,"full":1,"wide":2}}                    |
+	 *   | core/file                         | 3     | https://www.example.com/2023/01/13/media-category-blocks/  | ["post"]        |                                                                      |
+	 *   | core/gallery                      | 10    | https://www.example.com/2023/01/13/media-category-blocks/  | ["post"]        |                                                                      |
+	 *   | core/group                        | 25    | https://www.example.com/2023/01/13/design-category-blocks/ | ["post"]        |                                                                      |
+	 *   | core/heading                      | 23    | https://www.example.com/2023/01/13/text-category-blocks/   | ["post","page"] | {"H1":2,"H2":11,"H3":4,"H4":2,"H5":2,"H6":2}                         |
+	 *   | core/html                         | 2     | https://www.example.com/2023/01/13/widgets-block-category/ | ["post"]        |                                                                      |
+	 *   | core/image                        | 19    | https://www.example.com/2023/01/13/media-category-blocks/  | ["post"]        | {"align":{"center":2,"left":2,"right":3,"none":1,"wide":1,"full":1}} |
+	 *   | core/list                         | 9     | https://www.example.com/2023/01/13/text-category-blocks/   | ["post"]        |                                                                      |
+	 *   | core/list-item                    | 6     | https://www.example.com/2023/01/13/text-category-blocks/   | ["post"]        |                                                                      |
+	 *   | core/media-text                   | 6     | https://www.example.com/2023/01/13/media-category-blocks/  | ["post"]        | {"align":{"full":1}}                                                 |
+	 *   | core/paragraph                    | 262   | https://www.example.com/2023/01/13/text-category-blocks/   | ["post","page"] | {"align":{"center":16,"right":1,"left":1}}                           |
+	 *   | core/pullquote                    | 4     | https://www.example.com/2023/01/13/text-category-blocks/   | ["post"]        |                                                                      |
+	 *   | core/spacer                       | 4     | https://www.example.com/2023/01/13/design-category-blocks/ | ["post"]        |                                                                      |
+	 *   | core/table                        | 4     | https://www.example.com/2023/01/13/text-category-blocks/   | ["post"]        |                                                                      |
+	 *   +-----------------------------------+-------+------------------------------------------------------------+-----------------+----------------------------------------------------------------------+
 	 *
-	 * @param array $args       Positional arguments.
-	 * @param array $assoc_args Associative arguments.
+	 * @param array<string> $args       Positional arguments.
+	 * @param array<string> $assoc_args Associative arguments.
 	 */
 	public function run( array $args, array $assoc_args = [] ): void {
 		global $wpdb;
 
-		$user_query_args = array_diff_key( $assoc_args, array_flip( [ 'format', 'progress-bar', 'verbose' ] ) );
+		$user_query_args = array_diff_key( $assoc_args, array_flip( [ 'format', 'progress-bar', 'block_name', 'verbose' ] ) );
 		$task_name       = get_flag_value( $assoc_args, 'verbose', false )
 			? new PHP_CLI_Progress_Bar( 'Bulk Task: audit-blocks' )
 			: new Null_Progress_Bar();
@@ -120,25 +130,36 @@ final class Block_Audit_Command extends WP_CLI\CommandWithDBObject implements Fe
 			],
 			$user_query_args,
 		);
+
 		$query_args = self::process_csv_arguments_to_arrays( $query_args );
 		if ( isset( $query_args['post_type'] ) && is_string( $query_args['post_type'] ) && 'any' !== $query_args['post_type'] ) {
 			$query_args['post_type'] = explode( ',', $query_args['post_type'] );
+		}
+
+		$block_names = get_flag_value( $assoc_args, 'block_name', '' );
+
+		if ( is_string( $block_names ) ) {
+			$block_names = explode( ',', $block_names );
+			$block_names = array_map( 'trim', $block_names );
+		}
+
+		$block_query_args = [
+			'flatten'           => true,
+			'skip_empty_blocks' => false, // For counting classic blocks.
+		];
+
+		if ( ! empty( $block_names ) && is_array( $block_names ) ) {
+			$block_query_args['name'] = $block_names;
 		}
 
 		$out = [];
 
 		$bulk_task->run(
 			$query_args,
-			function ( \WP_Post $post ) use ( &$out ) {
-				$blocks = match_blocks(
-					$post,
-					[
-						'flatten'           => true,
-						'skip_empty_blocks' => false, // For counting classic blocks.
-					],
-				);
+			function ( WP_Post $post ) use ( &$out, $block_query_args ) {
+				$blocks = match_blocks( $post, $block_query_args );
 
-				if ( ! is_iterable( $blocks ) ) {
+				if ( ! is_iterable( $blocks ) || empty( $blocks ) ) {
 					return;
 				}
 
