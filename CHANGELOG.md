@@ -2,6 +2,12 @@
 
 This library adheres to [Semantic Versioning](https://semver.org/) and [Keep a CHANGELOG](https://keepachangelog.com/en/1.0.0/).
 
+## 2.0.5
+
+### Changed
+
+- Updated package `alleyinteractive/wp-match-blocks` to ^4.3.
+
 ## 2.0.4
 
 ### Changed
