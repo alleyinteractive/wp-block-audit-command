@@ -168,7 +168,7 @@ final class Block_Audit_Command extends WP_CLI\CommandWithDBObject implements Fe
 
 					// Label null blocks as classic blocks if they contain HTML.
 					if ( ! $block_name ) {
-						$html = $block['innerHTML'] ?? '';
+						$html = $block['innerHTML'];
 						$html = trim( $html );
 
 						if ( ! $html ) {
