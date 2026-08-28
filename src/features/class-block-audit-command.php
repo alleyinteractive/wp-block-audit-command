@@ -45,7 +45,7 @@ final class Block_Audit_Command extends WP_CLI\CommandWithDBObject implements Fe
 	 * : One or more args to pass to WP_Query except for 'order', 'orderby', or 'paged'.
 	 *
 	 * [--block_name=<block_name>...]
-	 * : One or more block names to report on (comma separated). (Default: all block types).
+	 * : One or more block names to report on (comma-separated). (Default: all block types).
 	 *
 	 * [--format=<format>]
 	 * : Render output in a particular format.
@@ -136,20 +136,22 @@ final class Block_Audit_Command extends WP_CLI\CommandWithDBObject implements Fe
 			$query_args['post_type'] = explode( ',', $query_args['post_type'] );
 		}
 
-		$block_names = get_flag_value( $assoc_args, 'block_name', '' );
-
-		if ( is_string( $block_names ) ) {
-			$block_names = explode( ',', $block_names );
-			$block_names = array_map( 'trim', $block_names );
-		}
-
 		$block_query_args = [
 			'flatten'           => true,
 			'skip_empty_blocks' => false, // For counting classic blocks.
 		];
 
-		if ( ! empty( $block_names ) && is_array( $block_names ) ) {
-			$block_query_args['name'] = $block_names;
+		$block_names = get_flag_value( $assoc_args, 'block_name', '' );
+
+		if ( is_string( $block_names ) ) {
+			$block_names = explode( ',', $block_names );
+			$block_names = array_map( 'trim', $block_names );
+			$block_names = array_filter( $block_names, fn ( $name ) => is_string( $name ) && $name !== '' );
+			$block_names = array_values( $block_names );
+
+			if ( $block_names !== [] ) {
+				$block_query_args['name'] = $block_names;
+			}
 		}
 
 		$out = [];

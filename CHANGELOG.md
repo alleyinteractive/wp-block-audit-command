@@ -2,6 +2,12 @@
 
 This library adheres to [Semantic Versioning](https://semver.org/) and [Keep a CHANGELOG](https://keepachangelog.com/en/1.0.0/).
 
+## 2,0.6
+
+### Fixed
+
+- Fixed an issue where omitting the `--block_name` argument would cause no blocks to be matched.
+
 ## 2.0.5
 
 ### Changed
