@@ -45,7 +45,7 @@ final class Block_Audit_Command extends WP_CLI\CommandWithDBObject implements Fe
 	 * : One or more args to pass to WP_Query except for 'order', 'orderby', or 'paged'.
 	 *
 	 * [--block_name=<block_name>...]
-	 * : One or more block names to report on (comma separated). (Default: all block types).
+	 * : One or more block names to report on (comma-separated). (Default: all block types).
 	 *
 	 * [--format=<format>]
 	 * : Render output in a particular format.
